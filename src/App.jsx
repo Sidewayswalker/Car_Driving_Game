@@ -32,6 +32,11 @@ function App() {
     console.log(CarChoice);
   };
 
+  // Function to handle "Let's Drive!" button click
+  const handleClickStart = () => {
+    console.log('SUCCESSFUL BUTTON CLICK');
+  };
+
   return (
     <div>
       <h1 className="main-title">Welcome!</h1>
@@ -66,17 +71,25 @@ function App() {
         </Canvas>
       </div>
 
-    <div>
-      <h2 className='SelectedCarText'>Selected Car:</h2>
+      <div>
+        <h2 className='SelectedCarText'>Selected Car:</h2>
 
-      <h3 className={CarChoice === 'Orange Car' ? 'CarChoiceTextOrange' : 
-          (CarChoice === 'Green Car' ? 'CarChoiceTextGreen' : 
-          (CarChoice === 'Purple Car' ? 'CarChoiceTextPurple' : 'CarChoiceText'))}>
-        {CarChoice}
-      </h3>
+        <h3 className={CarChoice === 'Orange Car' ? 'CarChoiceTextOrange' : 
+            (CarChoice === 'Green Car' ? 'CarChoiceTextGreen' : 
+            (CarChoice === 'Purple Car' ? 'CarChoiceTextPurple' : 'CarChoiceText'))}>
+          {CarChoice}
+        </h3>
 
+        <h3 
+          className={CarChoice === '' ? 'StartButtonGrey' : 'StartButtonGreen'}
+          onClick={CarChoice !== '' ? handleClickStart : null}
+          style={{ cursor: CarChoice !== '' ? 'pointer' : 'default' }}
+        >
+          Let's Drive!
+        </h3>
+
+      </div>
     </div>
-  </div>
   );
 }
 
