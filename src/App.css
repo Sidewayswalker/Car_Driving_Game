@@ -61,7 +61,6 @@
 .main-title {
   font-size: 5rem;
   margin-top: -50px;
-  padding-bottom: 50px;
   text-align: center;
   color: #ff6600;
   text-shadow: 4px 4px 2px black;
@@ -69,7 +68,7 @@
 
 .subtitle {
   font-size: 2.3rem;
-  padding-bottom: 50px;
+  padding-bottom: 30px;
   text-align: center;
   color: #c8c8c8;
 }
