@@ -1,0 +1,94 @@
+#root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  margin: 0 auto;
+  text-align: center;
+  padding-bottom: 50px;
+  background-color: rgb(69, 130, 125);
+  
+  /* Use Flexbox to center the content */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;  /* Center vertically */
+  align-items: center;      /* Center horizontally */
+  height: 100vh;            /* Take full viewport height */
+}
+
+
+/* General Styling for Canvas Containers */
+.canvas-container {
+  display: flex;
+  flex-direction: row;
+  gap: 20px; /* Add spacing between canvases */
+  padding: 20px;
+  height: 200px;
+  max-width: 1000px;
+  width: auto;
+  justify-content: center; /* Centers the canvas in the container */
+}
+
+/* Specific Styling for Individual Car Canvases */
+.orange-car-canvas {
+  background-color: rgb(90, 9, 151);
+  border-style: solid;
+  border-width: 5px;
+}
+.green-car-canvas {
+  background-color: rgb(165, 15, 15);
+  border-style: solid;
+  border-width: 5px;
+}
+.purple-car-canvas {
+  background-color: rgb(255, 136, 0);
+  border-style: solid;
+  border-width: 5px;
+}
+
+@media screen and (max-width: 1070px) {
+  .canvas-container {
+    display: flex;
+    flex-direction: column; /* Stack canvases vertically */
+    align-items: center;    /* Center items horizontally */
+    height: 50vh;           /* Set height to 50% of the viewport height */
+    max-width: 90vw;        /* Limit the max width to 90% of the viewport width */
+    min-width: 300px;       /* Ensure the width doesn't go below 300px */
+    width: 80vw;            /* Set width to 80% of the viewport width */
+  }
+}
+
+/* Styling for Main Title and Subtitle */
+.main-title {
+  font-size: 5rem;
+  margin-top: -50px;
+  padding-bottom: 50px;
+  text-align: center;
+  color: #ff6600;
+  text-shadow: 4px 4px 2px black;
+}
+
+.subtitle {
+  font-size: 2.3rem;
+  padding-bottom: 50px;
+  text-align: center;
+  color: #c8c8c8;
+}
+
+.SelectedCarText {
+  font-size: 2rem;
+}
+.CarChoiceTextOrange {
+  color: orange;
+  font-size: 2.5rem;
+  text-shadow: 4px 4px 2px black;
+}
+.CarChoiceTextGreen {
+  color: rgb(57, 237, 57);
+  font-size: 2.5rem;
+  text-shadow: 4px 4px 2px black;
+}
+.CarChoiceTextPurple {
+  color:  rgb(240, 44, 240);
+  font-size: 2.5rem;
+  text-shadow: 4px 4px 2px black;
+}
