@@ -1,40 +1,38 @@
 import React, { useState, useRef } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber'; // React-three-fiber for rendering 3D graphics
-import { useGLTF } from '@react-three/drei';           // GLTF loader from drei for loading 3D models
+import { Canvas, useFrame } from '@react-three/fiber';
+import { useGLTF } from '@react-three/drei';
 import './App.css';
 
-// Component to load and display a 3D car model
 function Model({ url, scale = 2 }) {
-  const { scene } = useGLTF(url); // Load the GLTF model from the provided URL
-  const carRef = useRef();        // Reference to the car model for manipulation
+  const { scene } = useGLTF(url);
+  const carRef = useRef();
 
-  // Rotates the car on each frame
   useFrame(() => {
     if (carRef.current) {
-      carRef.current.rotation.y += 0.01; // Rotate the car around the Y-axis
+      carRef.current.rotation.y += 0.01;
     }
   });
 
-  // Return the 3D model wrapped in a primitive component
   return <primitive ref={carRef} object={scene} scale={scale} />;
 }
 
 function App() {
-  const [CarChoice, setCarChoice] = useState(""); // State to store the selected car
+  const [CarChoice, setCarChoice] = useState("");
 
-  const Orange_Car = '/Orange_Car.glb'; // URL for the orange car model file
-  const Green_Car = '/Green_Car.glb';   // URL for the green car model file
-  const Purple_Car = '/Purple_Car.glb'; // URL for the purple car model file
+  const Orange_Car = '/Orange_Car.glb';
+  const Green_Car = '/Green_Car.glb';
+  const Purple_Car = '/Purple_Car.glb';
 
-  // Function to handle canvas click and set the selected car
   const handleCarClick = (carName) => {
     setCarChoice(carName);
-    console.log(CarChoice);
+    console.log(carName);
   };
 
-  // Function to handle "Let's Drive!" button click
   const handleClickStart = () => {
-    console.log('SUCCESSFUL BUTTON CLICK');
+    if (CarChoice) {
+      console.log('Navigating to game page...');
+      history.push('/game');
+    }
   };
 
   return (
@@ -72,25 +70,31 @@ function App() {
       </div>
 
       <div>
-        <h2 className='SelectedCarText'>Selected Car:</h2>
-
-        <h3 className={CarChoice === 'Orange Car' ? 'CarChoiceTextOrange' : 
-            (CarChoice === 'Green Car' ? 'CarChoiceTextGreen' : 
-            (CarChoice === 'Purple Car' ? 'CarChoiceTextPurple' : 'CarChoiceText'))}>
+        <h2 className="SelectedCarText">Selected Car:</h2>
+        <h3
+          className={
+            CarChoice === 'Orange Car'
+              ? 'CarChoiceTextOrange'
+              : CarChoice === 'Green Car'
+              ? 'CarChoiceTextGreen'
+              : CarChoice === 'Purple Car'
+              ? 'CarChoiceTextPurple'
+              : 'CarChoiceText'
+          }
+        >
           {CarChoice}
         </h3>
 
-        <h3 
+        <h3
           className={CarChoice === '' ? 'StartButtonGrey' : 'StartButtonGreen'}
-          onClick={CarChoice !== '' ? handleClickStart : null}
+          onClick={handleClickStart}
           style={{ cursor: CarChoice !== '' ? 'pointer' : 'default' }}
         >
           Let's Drive!
         </h3>
-
       </div>
     </div>
   );
 }
 
-export default App; // Export the main App component
+export default App;
