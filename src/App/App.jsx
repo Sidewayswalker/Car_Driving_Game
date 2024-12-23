@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
+import { useNavigate } from 'react-router-dom';
 import './App.css';
 
 function Model({ url, scale = 2 }) {
@@ -18,6 +19,7 @@ function Model({ url, scale = 2 }) {
 
 function App() {
   const [CarChoice, setCarChoice] = useState("");
+  const navigate = useNavigate();
 
   const Orange_Car = '/Orange_Car.glb';
   const Green_Car = '/Green_Car.glb';
@@ -30,8 +32,25 @@ function App() {
 
   const handleClickStart = () => {
     if (CarChoice) {
-      console.log('Navigating to game page...');
-      history.push('/game');
+      let selectedCarFile = '';
+
+      if (CarChoice === 'Orange Car') {
+        selectedCarFile = Orange_Car;
+      } else if (CarChoice === 'Green Car') {
+        selectedCarFile = Green_Car;
+      } else if (CarChoice === 'Purple Car') {
+        selectedCarFile = Purple_Car;
+      }
+
+    
+      console.log('Navigating to game page..');
+
+      navigate('/game', 
+        {state: { 
+          carChoice: CarChoice,
+          carFile: selectedCarFile,
+        },
+      });
     }
   };
 
