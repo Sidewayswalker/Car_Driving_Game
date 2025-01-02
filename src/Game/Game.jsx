@@ -1,120 +1,150 @@
 import React, { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { gsap } from 'gsap';
 import './Game.css';
-import Road from '../../public/Road.jpg'
+import Road from '/Road.jpg';
 
 function Game() {
   const mountRef = useRef(null);
   const location = useLocation();
-  const carChoice = location.state?.carChoice;
   const carGLBFile = location.state?.carFile;
 
   useEffect(() => {
-    //! Scene
+    //! Initialize scene
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x03d3fc); // Blue color
+    scene.background = new THREE.Color(0x03d3fc);
 
-    //! Camera
+    //! Initialize camera
     const camera = new THREE.PerspectiveCamera(100, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 4; 
-    camera.position.y = 3;
+    camera.position.set(0, 3, 5);
 
-    //! Renderer
+    //! Initialize renderer
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
     mountRef.current.appendChild(renderer.domElement);
 
-    //! GRID - Scene
-    const gridHelper = new THREE.GridHelper(10, 10); // Size of grid and number of divisions
+    //! Grid Helper
+    const gridHelper = new THREE.GridHelper(10, 10);
     scene.add(gridHelper);
 
-    //! Ambient light
+    //! Ambient Light
     const ambientLight = new THREE.AmbientLight(0xffffff, 1);
     scene.add(ambientLight);
 
-    //! Initialize OrbitControls
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true; // Enable smooth controls
-    controls.dampingFactor = 0.25;
-    controls.screenSpacePanning = false; // Prevent panning across the screen
-
-    //TODO - THE ROAD
-    //* Load Texture
+    //! ROAD
     const textureLoader = new THREE.TextureLoader();
-    const texture = textureLoader.load(Road);
+    const roadTexture = textureLoader.load(Road);
+    roadTexture.wrapS = THREE.RepeatWrapping;
+    roadTexture.wrapT = THREE.RepeatWrapping;
+    roadTexture.repeat.set(1, 1);
 
-    //* Set texture wrapping and repeat
-    texture.wrapS = THREE.RepeatWrapping;
-    texture.wrapT = THREE.RepeatWrapping;
-    texture.repeat.set(1, 1);
+    const planeGeometry = new THREE.PlaneGeometry(12, 12);
+    const planeMaterial = new THREE.MeshBasicMaterial({ map: roadTexture });
+    const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+    plane.rotation.set(-Math.PI / 2, 0, Math.PI / 2);
+    scene.add(plane);
 
-    //* Create the plane geometry and material
-    const planeGeometry = new THREE.PlaneGeometry(12, 12); // BoxGeometry for the plane
-    const planeMaterial = new THREE.MeshBasicMaterial({ map: texture }); 
-    const plane = new THREE.Mesh(planeGeometry, planeMaterial); 
-
-    //* Set position and rotation
-    plane.position.z = 0;
-    plane.rotation.x = -Math.PI / 2;
-    plane.rotation.z = Math.PI /2;
-    scene.add(plane); 
-
-
-    //TODO - Box Car
-   //* Create the plane geometry and material
-    const boxGeometry = new THREE.BoxGeometry(.5, .5, .5); // BoxGeometry for the box
-    const boxMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 }); // Red material
-    const box = new THREE.Mesh(boxGeometry, boxMaterial); 
-
-    //* Set position and rotation
-    box.position.y = 0.25; 
-    box.position.z = 0; 
+    //! BOX CAR
+    const boxGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+    const boxMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+    const box = new THREE.Mesh(boxGeometry, boxMaterial);
+    box.position.set(0, 0.25, 0);
     scene.add(box);
 
+    //! Camera offset relative to the box
+    const cameraOffset = new THREE.Vector3(0, 3, 5);
+
+    //! Track pressed keys
+    const pressedKeys = {};
+    let isJumping = false; // Track if the box is jumping
+
+    //! Handle key presses
     const handleKeyDown = (event) => {
-      if (event.key === "w") {
-        box.position.z -= 1;
-      } else if (event.key === "a") {
-        box.position.x -= 1;
-      } else if (event.key === "d") {
-        box.position.x += 1;
-      } else if (event.key === "s") {
-        box.position.z += 1;
+      pressedKeys[event.key] = true;
+
+      // Handle spacebar jump
+      if (event.key === " " && !isJumping) {
+        isJumping = true;
+
+        // Smooth jump using GSAP
+        gsap.to(box.position, {
+          y: 3,
+          duration: 0.3, // Upward duration
+          ease: "power1.out",
+          onComplete: () => {
+            gsap.to(box.position, {
+              y: 0.25,
+              duration: 0.3, // Downward duration
+              ease: "power1.in",
+              onComplete: () => {
+                isJumping = false; // Allow another jump after landing
+              },
+            });
+          },
+        });
       }
     };
 
+    const handleKeyUp = (event) => {
+      pressedKeys[event.key] = false;
+    };
+
     window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
 
-
-    // Animation loop
+    //! Animation loop
     const animate = () => {
       requestAnimationFrame(animate);
 
-      // Update the controls for smooth movement
-      controls.update(); 
-  
+      // Handle box movement and rotation based on pressed keys
+      const moveSpeed = 0.1;
+      const rotationSpeed = 0.03;
+
+      // Define forward and backward directions based on box rotation
+      const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(box.quaternion); // Local forward direction
+      const backward = new THREE.Vector3(0, 0, 1).applyQuaternion(box.quaternion); 
+
+      if (pressedKeys["w"]) {
+        box.position.add(forward.multiplyScalar(moveSpeed)); // Move forward along local Z axis
+      }
+      if (pressedKeys["s"]) {
+        box.position.add(backward.multiplyScalar(moveSpeed)); // Move backward along local Z axis
+      }
+      if (pressedKeys["a"]) {
+        box.rotation.y += rotationSpeed; // Rotate left
+      }
+      if (pressedKeys["d"]) {
+        box.rotation.y -= rotationSpeed; // Rotate right
+      }
+
+      // Update the camera position relative to the box
+      const relativeOffset = new THREE.Vector3(0, 3, 5); // Adjust as needed
+      const rotatedOffset = relativeOffset.applyEuler(box.rotation); // Apply box's rotation to the offset
+      const cameraPosition = new THREE.Vector3().addVectors(box.position, rotatedOffset);
+
+
+      // Ensure the camera looks at the box
+      camera.position.copy(cameraPosition);
+      camera.lookAt(box.position);
+
       // Render the scene
       renderer.render(scene, camera);
     };
 
     animate();
 
-    // Cleanup on unmount
+    //! Cleanup on unmount
     return () => {
-      mountRef.current.removeChild(renderer.domElement);
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+      if (mountRef.current) {
+        mountRef.current.removeChild(renderer.domElement);
+      }
     };
-  }, [carGLBFile]); // Re-run when carGLBFile changes
+  }, [carGLBFile]);
 
-  return (
-    <div>
-      <div ref={mountRef}>
-        
-      </div>
-    </div>
-  );
+  return <div ref={mountRef} />;
 }
 
 export default Game;
